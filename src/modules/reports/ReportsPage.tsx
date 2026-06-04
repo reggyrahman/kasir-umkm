@@ -42,7 +42,7 @@ export default function ReportsPage() {
   const { data: today, isLoading: loadingToday } = useTodaySummary()
   const { data: daily = [], isLoading: loadingDaily } = useDailyRevenue(7)
   const { data: profitData = [], isLoading: loadingProfit } = useGrossProfitReport(
-    profitFrom + 'T00:00:00.000Z', profitTo + 'T23:59:59.999Z'
+    profitFrom + 'T00:00:00.000+07:00', profitTo + 'T23:59:59.999+07:00'
   )
   const { data: stockData = [], isLoading: loadingStock } = useStockReport()
 
