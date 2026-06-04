@@ -29,7 +29,7 @@ export default function POSPage() {
   const { data: settings } = useSettings()
 
   // Items dari transaksi yang baru selesai (untuk nota)
-  const { data: completedItems = [] } = useTransactionItems(completedTx?.id ?? null)
+  const [completedItems, setCompletedItems] = useState<any[]>([])
 
   const handleSearch = useCallback((val: string) => setSearch(val), [])
 
@@ -42,6 +42,18 @@ export default function POSPage() {
     if (items.length === 0) return
     try {
       const result = await checkout.mutateAsync({ items, discount, paymentMethod: method, paymentAmount })
+      // Simpan items langsung dari keranjang — tidak perlu fetch
+      const notaItems = items.map(item => ({
+        id: item.product.id,
+        transaction_id: result.transaction.id,
+        product_id: item.product.id,
+        product_name: item.product.name,
+        qty: item.qty,
+        selling_price: item.product.selling_price,
+        cost_price: item.product.cost_price,
+        subtotal: item.subtotal,
+      }))
+      setCompletedItems(notaItems)
       setCompletedTx(result.transaction)
       setCheckoutOpen(false)
       clearCart()
