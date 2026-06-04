@@ -38,7 +38,16 @@ export function useTransactionItems(transactionId: string | null) {
   return useQuery({
     queryKey: ['transaction_items', transactionId],
     queryFn: async () => {
-      const { data, error } = await sb.from('transaction_items').select('*').eq('transaction_id', transactionId!)
+      // Ambil dari Dexie lokal dulu — pasti ada karena checkout simpan ke sini
+      const localItems = await localDb.transaction_items
+        .where('transaction_id')
+        .equals(transactionId!)
+        .toArray()
+      if (localItems.length > 0) return localItems as unknown as TransactionItem[]
+
+      // Fallback ke Supabase kalau lokal kosong (misal buka di browser baru)
+      const { data, error } = await sb.from('transaction_items')
+        .select('*').eq('transaction_id', transactionId!)
       if (error) throw error
       return data as TransactionItem[]
     },
